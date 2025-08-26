@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI BROWSER | Advanced Search Interface</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4776E6;
+            --secondary: #8E54E9;
+            --accent: #00c2ff;
+            --text: #2D3748;
+            --text-light: #718096;
+            --bg: #F7FAFC;
+            --card-bg: #FFFFFF;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --radius: 16px;
+            --menu-width: 320px;
+            --header-height: 80px;
+            --ai-gradient: linear-gradient(120deg, #00c2ff, #0066ff);
+        }
+
+        .dark-mode {
+            --primary: #4776E6;
+            --secondary: #8E54E9;
+            --accent: #00c2ff;
+            --text: #EDF2F7;
+            --text-light: #A0AEC0;
+            --bg: #1A202C;
+            --card-bg: #2D3748;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            --ai-gradient: linear-gradient(120deg, #00c2ff, #0066ff);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            transition: var(--transition);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header Styles */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--header-height);
+            background: var(--ai-gradient);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.8rem;
+        }
+
+        .logo-icon {
+            background: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0066ff;
+            transform: rotate(-5deg);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-toggle {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: rotate(90deg);
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: calc(-1 * var(--menu-width));
+            width: var(--menu-width);
+            height: 100vh;
+            background: var(--card-bg);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            z-index: 900;
+            padding: 100px 2rem 2rem;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .sidebar-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--ai-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+        }
+
+        .user-status {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #48BB78;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(0, 194, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: var(--ai-gradient);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 194, 255, 0.3);
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
+            width: 24px;
+        }
+
+        .theme-switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: auto;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: var(--radius);
+        }
+
+        .dark-mode .theme-switch {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .theme-label {
+            font-weight: 500;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: var(--ai-gradient);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            z-index: 800;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Main Content */
+        main {
+            margin-top: var(--header-height);
+            padding: 2rem;
+            transition: var(--transition);
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Search Section */
+        .search-container {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 3rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .search-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: var(--ai-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .search-subtitle {
+            color: var(--text-light);
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        .gcse-search {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* History Section */
+        .history-section {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .section-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .clear-history {
+            background: var(--ai-gradient);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0, 194, 255, 0.3);
+        }
+
+        .clear-history:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 194, 255, 0.4);
+        }
+
+        .history-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 1.5rem;
+            background: var(--bg);
+            border-radius: var(--radius);
+            transition: var(--transition);
+            animation: slideIn 0.3s ease forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .history-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-content {
+            flex: 1;
+        }
+
+        .history-query {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .history-date {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .delete-item {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-item:hover {
+            background: rgba(0, 194, 255, 0.1);
+            transform: rotate(90deg);
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* About Section */
+        .about-section {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .about-content {
+            line-height: 1.8;
+        }
+
+        .about-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: var(--bg);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: var(--ai-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            :root {
+                --menu-width: 280px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 0 1.5rem;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            main {
+                padding: 1.5rem;
+            }
+            
+            .search-container, .history-section, .about-section {
+                padding: 2rem 1.5rem;
+            }
+            
+            .search-title {
+                font-size: 2rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            :root {
+                --header-height: 70px;
+            }
+            
+            header {
+                padding: 0 1rem;
+            }
+            
+            .logo span {
+                font-size: 1.3rem;
+            }
+            
+            .logo-icon {
+                width: 36px;
+                height: 36px;
+            }
+            
+            main {
+                padding: 1rem;
+            }
+            
+            .search-container, .history-section, .about-section {
+                padding: 1.5rem 1rem;
+                border-radius: 12px;
+            }
+            
+            .search-title {
+                font-size: 1.8rem;
+            }
+            
+            .theme-switch {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .clear-history {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Menu Button -->
+    <header>
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+            <span>AI BROWSER</span>
+        </div>
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="user-avatar">AI</div>
+            <div class="user-info">
+                <div class="user-name">AI Assistant</div>
+                <div class="user-status">
+                    <div class="status-indicator"></div>
+                    <span>Online</span>
+                </div>
+            </div>
+        </div>
+        
+        <a href="#" class="nav-item active" data-target="search">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="#" class="nav-item" data-target="history">
+            <i class="fas fa-history"></i>
+            <span>History</span>
+        </a>
+        <a href="#" class="nav-item" data-target="about">
+            <i class="fas fa-info-circle"></i>
+            <span>About</span>
+        </a>
+        
+        <div class="theme-switch">
+            <div class="theme-label">Dark Mode</div>
+            <label class="switch">
+                <input type="checkbox" id="darkModeToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Overlay for closing sidebar when clicking outside -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Search Section -->
+        <section id="search" class="section active">
+            <div class="search-container">
+                <h1 class="search-title">AI-Powered Search</h1>
+                <p class="search-subtitle">Leverage artificial intelligence to find exactly what you're looking for</p>
+                <div class="gcse-search"></div>
+            </div>
+        </section>
+
+        <!-- History Section -->
+        <section id="history" class="section">
+            <div class="history-section">
+                <div class="section-header">
+                    <h2 class="section-title">Search History</h2>
+                    <button class="clear-history" id="clearHistory">
+                        <i class="fas fa-trash"></i> Clear All
+                    </button>
+                </div>
+                <div class="history-list" id="historyList">
+                    <!-- History items will be added here dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section">
+            <div class="about-section">
+                <div class="section-header">
+                    <h2 class="section-title">About AI BROWSER</h2>
+                </div>
+                <div class="about-content">
+                    <p>AI BROWSER is an advanced search interface that leverages artificial intelligence to deliver superior search results. Our platform combines cutting-edge AI technology with an elegant, intuitive interface designed for the modern user.</p>
+                    
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h3 class="feature-title">AI Powered</h3>
+                            <p>Intelligent algorithms that learn from your search behavior to deliver better results</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3 class="feature-title">Privacy Focused</h3>
+                            <p>Your data stays yours - we don't sell your search history to advertisers</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <h3 class="feature-title">Lightning Fast</h3>
+                            <p>Get AI-powered search results in milliseconds with our optimized engine</p>
+                        </div>
+                    </div>
+                    
+                    <p>Our mission is to make information discovery seamless, efficient, and enjoyable. Whether you're researching for work, studying, or just curious about the world, AI BROWSER is designed to help you find what you need faster and more intuitively than ever before.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2023 AI BROWSER. All rights reserved.</p>
+        <p>Powered by Artificial Intelligence</p>
+    </footer>
+
+    <!-- Google Custom Search Element -->
+    <script async src="https://cse.google.com/cse.js?cx=f329072bdd9794725"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const clearHistoryBtn = document.getElementById('clearHistory');
+            const historyList = document.getElementById('historyList');
+            const navItems = document.querySelectorAll('.nav-item');
+            const sections = document.querySelectorAll('.section');
+            
+            // Initialize search history from localStorage
+            let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
+            
+            // Initialize with sample data if empty
+            if (searchHistory.length === 0) {
+                searchHistory = [
+                    { query: "artificial intelligence applications", timestamp: Date.now() - 86400000 },
+                    { query: "machine learning vs deep learning", timestamp: Date.now() - 172800000 },
+                    { query: "neural networks explained", timestamp: Date.now() - 259200000 },
+                    { query: "what is natural language processing", timestamp: Date.now() - 345600000 },
+                    { query: "AI in healthcare innovations", timestamp: Date.now() - 432000000 }
+                ];
+                localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+            }
+            
+            // Toggle Sidebar
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking on overlay
+            overlay.addEventListener('click', function() {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            });
+            
+            // Navigation
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const target = this.getAttribute('data-target');
+                    
+                    if (target) {
+                        // Update active nav item
+                        navItems.forEach(nav => nav.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        // Show the corresponding section
+                        sections.forEach(section => {
+                            section.classList.remove('active');
+                            if (section.id === target) {
+                                section.classList.add('active');
+                            }
+                        });
+                        
+                        // Close sidebar on mobile after selection
+                        if (window.innerWidth <= 768) {
+                            sidebar.classList.remove('open');
+                            overlay.classList.remove('active');
+                        }
+                    }
+                });
+            });
+            
+            // Dark Mode Toggle
+            darkModeToggle.addEventListener('change', function() {
+                document.body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', this.checked ? 'enabled' : 'disabled');
+            });
+            
+            // Check for saved dark mode preference
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.checked = true;
+            }
+            
+            // Clear History
+            clearHistoryBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear all search history? This action cannot be undone.')) {
+                    searchHistory = [];
+                    localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+                    renderHistory();
+                    
+                    // Show confirmation message
+                    const confirmation = document.createElement('div');
+                    confirmation.textContent = 'History cleared successfully';
+                    confirmation.style.position = 'fixed';
+                    confirmation.style.bottom = '20px';
+                    confirmation.style.right = '20px';
+                    confirmation.style.background = 'var(--accent)';
+                    confirmation.style.color = 'white';
+                    confirmation.style.padding = '12px 20px';
+                    confirmation.style.borderRadius = '8px';
+                    confirmation.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                    confirmation.style.zIndex = '1000';
+                    confirmation.style.animation = 'fadeIn 0.3s ease';
+                    document.body.appendChild(confirmation);
+                    
+                    setTimeout(() => {
+                        confirmation.style.animation = 'fadeIn 0.3s ease reverse forwards';
+                        setTimeout(() => confirmation.remove(), 300);
+                    }, 3000);
+                }
+            });
+            
+            // Render search history
+            function renderHistory() {
+                if (searchHistory.length === 0) {
+                    historyList.innerHTML = `
+                        <div class="empty-history">
+                            <div class="empty-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <p>Your search history is empty</p>
+                            <p>Start searching to see your history here</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                historyList.innerHTML = '';
+                searchHistory.forEach((item, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.classList.add('history-item');
+                    historyItem.style.animationDelay = `${index * 0.05}s`;
+                    
+                    historyItem.innerHTML = `
+                        <div class="history-content">
+                            <div class="history-query">${item.query}</div>
+                            <div class="history-date">${new Date(item.timestamp).toLocaleString()}</div>
+                        </div>
+                        <button class="delete-item" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    
+                    historyList.appendChild(historyItem);
+                });
+                
+                // Add event listeners to delete buttons
+                document.querySelectorAll('.delete-item').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        searchHistory.splice(index, 1);
+                        localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+                        renderHistory();
+                    });
+                });
+            }
+            
+            // Initialize history display
+            renderHistory();
+            
+            // Monitor for search events (simulated for demo)
+            // In a real implementation, you would hook into the Google Custom Search events
+            const searchForm = document.querySelector('form.gsc-search-box');
+            if (searchForm) {
+                searchForm.addEventListener('submit', function(e) {
+                    const searchInput = this.querySelector('input.gsc-input');
+                    if (searchInput && searchInput.value.trim() !== '') {
+                        // Add to search history
+                        searchHistory.unshift({
+                            query: searchInput.value,
+                            timestamp: Date.now()
+                        });
+                        
+                        // Keep only the last 20 searches
+                        if (searchHistory.length > 20) {
+                            searchHistory.pop();
+                        }
+                        
+                        // Save to localStorage and update UI
+                        localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+                        renderHistory();
+                    }
+                });
+            }
+            
+            // Add animation to elements on scroll
+            function animateOnScroll() {
+                const elements = document.querySelectorAll('.feature-card, .history-item');
+                
+                elements.forEach(element => {
+                    const position = element.getBoundingClientRect();
+                    
+                    // If element is in viewport
+                    if (position.top < window.innerHeight * 0.85) {
+                        element.style.opacity = '1';
+                        element.style.transform = 'translateY(0)';
+                    }
+                });
+            }
+            
+            // Initial call to animate elements in view
+            animateOnScroll();
+            
+            // Listen for scroll events
+            window.addEventListener('scroll', animateOnScroll);
+        });
+    </script>
+</body>
+</html>
